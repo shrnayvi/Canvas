@@ -15,6 +15,7 @@ function clockHand(from, to) {
   ctx.moveTo(from.x, from.y);
   ctx.lineTo(to.x, to.y);
   ctx.lineWidth = 3;
+  ctx.strokeStyle = '#333';
   ctx.stroke();
 }
 
@@ -55,7 +56,6 @@ function clock() {
   var seconds = now.getSeconds();
   hour = hour > 12 ? hour - 12 : hour;
 
-  console.log(seconds);
 
   //second hand
   ctx.save();
@@ -74,7 +74,7 @@ function clock() {
   //hour hand
   ctx.save();
   ctx.rotate(- PI / 2);
-  ctx.rotate(PI * hour * minutes / 180);
+  ctx.rotate(PI * hour / 6 + minutes * PI / 360);
   clockHand({ x: 0, y: 0 }, { x: radius * 0.6, y: 0 })
   ctx.restore();
 }
