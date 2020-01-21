@@ -2,12 +2,17 @@ function Circle(x, y, radius) {
   this.x = x;
   this.y = y;
   this.radius = radius;
-  this.mass = random(1, 3);
+  this.mass = random(1, 5);
+  //this.mass = 1;
   this.velocity = {
-    x: random(-1, 1),
-    y: random(-1, -1),
+    x: random(-2, 5),
+    //y: random(-3, -4),
+    y: 0,
   }
 
+  this.addMass = function(mass) {
+    this.mass = mass;
+  }
 
 	this.strokeColor = STROKE_COLORS[Math.floor(Math.random() * STROKE_COLORS.length)]
 	this.fillColor = FILL_COLORS[Math.floor(Math.random() * FILL_COLORS.length)]
@@ -44,8 +49,8 @@ function Circle(x, y, radius) {
   }
 
   this.collides = function(c) {
-    var dist = distance(this, c);
-    if(dist < this.radius + c.radius) {
+    var dSq = distanceSq(this, c);
+    if(dSq <= (this.radius + c.radius) * (this.radius + c.radius) ){
       return true;
     }
     return false;
