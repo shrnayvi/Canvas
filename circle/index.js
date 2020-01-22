@@ -26,7 +26,7 @@ function createParticles() {
     }
 
     var particle= new Particle(x, y, radius, ctx);
-    particle.addMass((i + 1) * 5)
+    particle.addMass(5)
     particles.push(particle);
   }
 
