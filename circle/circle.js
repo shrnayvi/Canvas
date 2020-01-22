@@ -1,64 +1,63 @@
-function Circle(x, y, radius) {
-  this.x = x;
-  this.y = y;
-  this.radius = radius;
-  this.mass = random(1, 5);
-  //this.mass = 1;
-  this.velocity = {
-    x: random(-2, 5),
-    //y: random(-3, -4),
-    y: 0,
-  }
+function Particle(x, y, radius, ctx) {
+  this.position = new Vector(x, y);
+  this.radius = radius; 
+
+  this.fillColor = FILL_COLORS[Math.floor(random(0, FILL_COLORS.length))];
+  this.strokeColor = STROKE_COLORS[Math.floor(random(0, STROKE_COLORS.length))];
 
   this.addMass = function(mass) {
     this.mass = mass;
   }
+  
+  this.velocity = new Vector(
+    random(-1, 4),
+    //random(-1, 1),
+    0
+  );
 
-	this.strokeColor = STROKE_COLORS[Math.floor(Math.random() * STROKE_COLORS.length)]
-	this.fillColor = FILL_COLORS[Math.floor(Math.random() * FILL_COLORS.length)]
+  this.addVelocity = function(x, y) {
+    this.velocity = new Vector(x, y);
+  } 
 
-  this.drawCircle = function() {
+  this.draw = function() {
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, TWO_PI, false);
-    ctx.strokeStyle = this.strokeColor;
-    ctx.stroke();
+    ctx.arc(this.position.x, this.position.y, radius, 0, TWO_PI, false);
     ctx.fillStyle = this.fillColor;
     ctx.fill();
+    ctx.strokeStyle = this.strokeColor;
+    ctx.stroke();
   }
 
-  this.changeStrokeColor = function(strokeColor) {
-    this.strokeColor = strokeColor;
-  }
-
-  this.changeFillColor = function(fillcolor) {
-    this.fillColor = fillColor;
-  }
-
-  this.autoMovement = function() {
-    this.x = this.x + this.velocity.x;
-    this.y = this.y - this.velocity.y;
-    if(this.x > WINDOW_WIDTH - this.radius || this.x < this.radius) {
-      this.velocity.x= -this.velocity.x;
+  this.update = function() {
+    if(this.position.x + radius >= WINDOW_WIDTH || this.position.x <= radius) {
+      this.velocity.x = -this.velocity.x;
     }
 
-    if(this.y > WINDOW_HEIGHT- this.radius || this.y < this.radius) {
+    if(this.position.y + radius >= WINDOW_HEIGHT || this.position.y <= radius) {
       this.velocity.y = -this.velocity.y;
     }
-
-    this.drawCircle();
+    this.position.add(this.velocity);
   }
 
-  this.collides = function(c) {
-    var dSq = distanceSq(this, c);
-    if(dSq <= (this.radius + c.radius) * (this.radius + c.radius) ){
+  this.checkCollision = function(particle) {
+    if(this.collides(particle)) {
+      var dm = this.mass - particle.mass;
+      var massSum = this.mass + particle.mass;
+
+      v1x = ((dm * this.velocity.x) + (2 * particle.mass * particle.velocity.x)) / massSum;
+      v2x = ((-dm * particle.velocity.x) + (2 * this.mass * this.velocity.x)) / massSum;
+
+      this.velocity.x = v1x;
+      particle.velocity.x = v2x;
+    }
+  }
+
+  this.collides = function(particle) {
+    var dSq = distanceSq(this.position, particle.position);
+    if(dSq <= (this.radius + particle.radius) * (this.radius + particle.radius)) {
       return true;
     }
     return false;
   }
 
-  this.changeVelocity = function(velocity) {
-    this.velocity = velocity;
-  }
-
 }
-

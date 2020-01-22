@@ -1,64 +1,61 @@
-var circles = [];
+var NUM = 2;
 
-  var radius = 50;
-for(var i = 0; i < 2; i++) {
-  //var radius = random(10, 25);
-  var x = Math.random() * (WINDOW_WIDTH - radius * 2) + radius;
-  //var y = Math.random() * (WINDOW_HEIGHT - radius * 2) + radius;
-  var y = 500;
+function createParticles() {
+  var particles = [];
+  var maxNumberOfOverlappingTries = 0;
+  for(var i = 0; i < NUM; i++) {
+    var radius = random(10, 25);
+    var x = Math.random() * (WINDOW_WIDTH - radius * 2) + radius;
+    //var y = Math.random() * (WINDOW_HEIGHT - radius * 2) + radius;
+    var y = 300;
 
-	if(i > 0) {
-    for(var j = 0; j < circles.length; j++) {
-      var dSq = distanceSq({ x: x, y: y }, circles[j]) ;
-      if(dSq <= (radius + circles[j].radius) * (radius + circles[j].radius)) {
-        x = Math.random() * (WINDOW_WIDTH - radius * 2) + radius;
-        //y = Math.random() * (WINDOW_HEIGHT - radius * 2) + radius;
-        y = 500;
-        j = -1;
+    if(i > 0) {
+      for(var j = 0; j < particles.length; j++) {
+        var dSq = distanceSq({ x: x, y: y }, particles[j].position) ;
+        if(dSq < (radius + particles[j].radius) * (radius + particles[j].radius)) {
+          x = Math.random() * (WINDOW_WIDTH - radius * 2) + radius;
+          //y = Math.random() * (WINDOW_HEIGHT - radius * 2) + radius;
+
+          j = -1;
+        }
+
+        maxNumberOfOverlappingTries++;
       }
+
+      if(maxNumberOfOverlappingTries > 8000) break;
     }
-	}
 
-  var circle = new Circle(x, y, radius);
-  circle.addMass((i + 1) * 10)
-  circles.push(circle);
+    var particle= new Particle(x, y, radius, ctx);
+    particle.addMass((i + 1) * 5)
+    particles.push(particle);
+  }
+
+  return particles;
 }
 
-function getCollidedVelocity(c1, c2) {
-  var dm = c1.mass - c2.mass;
-  var massSum = c1.mass + c2.mass;  
 
-  //var theta = Math.atan2(c2.y - c1.y, c2.x - c1.x);
+function loop() {
 
-  //ctx.rotate(-theta);
-
-  var v1x = ( (dm * c1.velocity.x)+ (2 * c2.mass * c2.velocity.x) ) / massSum;
-  var v2x = ( (-dm * c2.velocity.x)+ (2 * c1.mass * c1.velocity.x) ) / massSum;
-
+  var particles = createParticles();
   
-  //ctx.rotate(theta);
-
-  var v1 = { x: v1x, y: c1.velocity.y };
-  var v2 = { x: v2x, y: c2.velocity.y };
-
-  return { v1: v1, v2: v2 };
-}
-
-function draw() {
-  ctx.clearRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-  for(var i = 0; i < circles.length; i++) {
-    circles[i].drawCircle();
-    circles[i].autoMovement();
-    for(var j = 0; j < circles.length; j++) {
-      if(i !== j && circles[i].collides(circles[j])) {
-        var velocity = getCollidedVelocity(circles[i], circles[j]);
-        console.log(velocity);
-
-        circles[i].changeVelocity(velocity.v1);
-        circles[j].changeVelocity(velocity.v2);
+  function draw() {
+    ctx.clearRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    for(var i = 0; i < particles.length; i++) {
+      particles[i].draw();
+      particles[i].update();
+      console.log(particles[i].velocity.x)
+      for(j = 0; j < particles.length; j++) {
+        if(i === j) continue;
+        else {
+          particles[i].checkCollision(particles[j])
+        }
       }
     }
   }
+
+
+  setInterval(draw, 1000/60);
 }
 
-setInterval(draw, 1000/60);
+loop();
+
