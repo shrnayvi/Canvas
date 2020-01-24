@@ -13,6 +13,10 @@ function Vector(x, y) {
     return new Vector(this.x + vector.x, this.y + vector.y);
   }
 
+  this.subtract = function(vector) {
+    return new Vector(this.x - vector.x, this.y - vector.y);
+  }
+
   this.rotate = function(angle) {
     return new Vector(
       this.x * Math.cos(angle) - this.y * Math.sin(angle),
